@@ -50,9 +50,11 @@ class NewsPageState extends State<NewsPage> {
         }
       }
 
-      setState(() {
-        newsList = fetchedNews;
-      });
+      if (mounted) {
+        setState(() {
+          newsList = fetchedNews;
+        });
+      }
     }
   }
 
