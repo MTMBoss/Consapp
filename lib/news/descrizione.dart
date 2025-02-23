@@ -75,7 +75,7 @@ class DescrizionePageState extends State<DescrizionePage> {
             children: [
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                   children: _buildTextSpans(content),
                 ),
               ),
