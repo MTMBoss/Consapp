@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_application_1/news/file.dart'; // Assicurati che il percorso sia corretto
+import 'package:flutter_application_1/news/file.dart';
 
 class DescrizionePage extends StatefulWidget {
   final String url;

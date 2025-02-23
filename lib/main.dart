@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key}); 
+  const MainPage({super.key});
   @override
   MainPageState createState() => MainPageState();
 }
@@ -52,7 +52,7 @@ class MainPageState extends State<MainPage> {
         title: Text('MyApp'),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings, color: Colors.blue),
             onPressed: () {
               Navigator.push(
                 context,
@@ -68,23 +68,23 @@ class MainPageState extends State<MainPage> {
         onTap: _onTabTapped,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.card_travel),
+            icon: Icon(Icons.card_travel, color: Colors.blue),
             label: 'Pass',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.article),
+            icon: Icon(Icons.article, color: Colors.blue),
             label: 'News',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.access_time),
+            icon: Icon(Icons.access_time, color: Colors.blue),
             label: 'Time',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
+            icon: Icon(Icons.book, color: Colors.blue),
             label: 'Materie',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.confirmation_number),
+            icon: Icon(Icons.confirmation_number, color: Colors.blue),
             label: 'Biglietti',
           ),
         ],
