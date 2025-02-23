@@ -70,10 +70,7 @@ class DescrizionePageState extends State<DescrizionePage> {
             children: [
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                  ),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                   children: _buildTextSpans(content),
                 ),
               ),
@@ -95,12 +92,14 @@ class DescrizionePageState extends State<DescrizionePage> {
         if (node.localName == 'a' && node.attributes['href'] != null) {
           final href = node.attributes['href']!;
           final text = node.text;
-          spans.add(
-            WidgetSpan(
-              child: Icon(Icons.picture_as_pdf, color: Colors.red, size: 16),
-              alignment: PlaceholderAlignment.middle,
-            ),
-          );
+          if (href.endsWith('.pdf')) {
+            spans.add(
+              WidgetSpan(
+                child: Icon(Icons.picture_as_pdf, color: Colors.red, size: 16),
+                alignment: PlaceholderAlignment.middle,
+              ),
+            );
+          }
           spans.add(
             TextSpan(
               text: text,
