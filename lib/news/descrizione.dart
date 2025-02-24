@@ -18,6 +18,7 @@ class DescrizionePage extends StatefulWidget {
 class DescrizionePageState extends State<DescrizionePage> {
   String content = "Caricamento...";
   List<Map<String, String>> docLinks = [];
+  String imageUrl = '';
 
   @override
   void initState() {
@@ -41,17 +42,21 @@ class DescrizionePageState extends State<DescrizionePage> {
           .join("\n\n");
 
       final docElements = document.querySelectorAll(
-        'a[href\$=".pdf"], a[href\$=".doc"], a[href\$=".docx"], img',
+        'a[href\$=".pdf"], a[href\$=".doc"], a[href\$=".docx"]',
       );
       docLinks =
           docElements.map((element) {
             return {
-              'href':
-                  element.attributes['href'] ?? element.attributes['src'] ?? '',
+              'href': element.attributes['href'] ?? '',
               'text': element.text.trim(),
               'tagName': element.localName ?? '',
             };
           }).toList();
+
+      final imgElement = document.querySelector('.gallery-block img');
+      if (imgElement != null) {
+        imageUrl = imgElement.attributes['src'] ?? '';
+      }
 
       setState(() {
         content = "$title\n\n$description";
@@ -79,6 +84,17 @@ class DescrizionePageState extends State<DescrizionePage> {
                   children: _buildTextSpans(content),
                 ),
               ),
+              if (imageUrl.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Image.network(
+                    imageUrl.startsWith('http')
+                        ? imageUrl
+                        : 'https://conts.it$imageUrl',
+                    width: 150,
+                    height: 150,
+                  ),
+                ),
             ],
           ),
         ),
@@ -168,16 +184,6 @@ class DescrizionePageState extends State<DescrizionePage> {
               ),
             );
           }
-        } else if (node.localName == 'img' && href != '') {
-          spans.add(
-            WidgetSpan(
-              child: Image.network(
-                href.startsWith('http') ? href : 'https://conts.it$href',
-                width: 150,
-                height: 150,
-              ),
-            ),
-          );
         } else {
           spans.add(TextSpan(text: node.text));
         }
