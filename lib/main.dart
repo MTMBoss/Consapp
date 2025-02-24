@@ -10,12 +10,14 @@ void main() {
   runApp(MyApp());
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // Aggiunto per la navigazione globale
       title: 'MyApp',
       theme: ThemeData.dark(),
       home: MainPage(),
@@ -44,6 +46,8 @@ class MainPageState extends State<MainPage> {
       _currentIndex = index;
     });
   }
+
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {

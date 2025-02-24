@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_application_1/news/descrizione/file/img.dart';
-import 'package:flutter_application_1/news/descrizione/file/doc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_application_1/news/descrizione/file/pdf.dart';
+import 'package:flutter_application_1/news/descrizione/file/doc.dart';
+import 'package:flutter_application_1/news/descrizione/file/img.dart';
 
 class DescrizionePage extends StatefulWidget {
   final String url;
@@ -43,9 +44,15 @@ class DescrizionePageState extends State<DescrizionePage> {
           .map((e) => e.innerHtml.trim())
           .join("\n\n");
 
-      final imgElement = document.querySelector('.gallery-block img');
+      final imgElement = document.querySelector('.gallery-block a');
       if (imgElement != null) {
-        imageUrl = imgElement.attributes['src'] ?? '';
+        String imgSrc = imgElement.attributes['href'] ?? '';
+        if (imgSrc.isNotEmpty && !imgSrc.startsWith('http')) {
+          imageUrl =
+              'https://conts.it$imgSrc'; // Modifica l'URL con il dominio corretto
+        } else {
+          imageUrl = imgSrc;
+        }
       }
 
       setState(() {
@@ -124,6 +131,24 @@ class DescrizionePageState extends State<DescrizionePage> {
     }
 
     return spans;
+  }
+
+  Widget buildImage(String url) {
+    return GestureDetector(
+      onTap: () => openFullScreenImage(context, url),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: CachedNetworkImage(
+          imageUrl: url,
+          placeholder: (context, url) => const CircularProgressIndicator(),
+          errorWidget:
+              (context, url, error) => const Text(
+                'Immagine non disponibile',
+                style: TextStyle(color: Colors.red),
+              ),
+        ),
+      ),
+    );
   }
 
   Future<void> _launchURL(String url) async {
