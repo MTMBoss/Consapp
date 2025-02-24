@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
-import 'package:flutter_application_1/news/descrizione.dart';
+import 'package:flutter_application_1/news/descrizione/descrizione.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});

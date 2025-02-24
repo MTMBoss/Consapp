@@ -1,10 +1,13 @@
+// descrizione.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_application_1/news/file.dart';
+import 'package:flutter_application_1/news/descrizione/file/img.dart';
+import 'package:flutter_application_1/news/descrizione/file/doc.dart';
+import 'package:flutter_application_1/news/descrizione/file/pdf.dart';
 
 class DescrizionePage extends StatefulWidget {
   final String url;
@@ -17,7 +20,6 @@ class DescrizionePage extends StatefulWidget {
 
 class DescrizionePageState extends State<DescrizionePage> {
   String content = "Caricamento...";
-  List<Map<String, String>> docLinks = [];
   String imageUrl = '';
 
   @override
@@ -40,18 +42,6 @@ class DescrizionePageState extends State<DescrizionePage> {
       String description = textBlocks
           .map((e) => e.innerHtml.trim())
           .join("\n\n");
-
-      final docElements = document.querySelectorAll(
-        'a[href\$=".pdf"], a[href\$=".doc"], a[href\$=".docx"]',
-      );
-      docLinks =
-          docElements.map((element) {
-            return {
-              'href': element.attributes['href'] ?? '',
-              'text': element.text.trim(),
-              'tagName': element.localName ?? '',
-            };
-          }).toList();
 
       final imgElement = document.querySelector('.gallery-block img');
       if (imgElement != null) {
@@ -84,17 +74,7 @@ class DescrizionePageState extends State<DescrizionePage> {
                   children: _buildTextSpans(content),
                 ),
               ),
-              if (imageUrl.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Image.network(
-                    imageUrl.startsWith('http')
-                        ? imageUrl
-                        : 'https://conts.it$imageUrl',
-                    width: 150,
-                    height: 150,
-                  ),
-                ),
+              if (imageUrl.isNotEmpty) buildImage(imageUrl),
             ],
           ),
         ),
@@ -113,57 +93,11 @@ class DescrizionePageState extends State<DescrizionePage> {
         final href = node.attributes['href'] ?? node.attributes['src'] ?? '';
         final text = node.text;
 
-        if (node.localName == 'a' && href != '') {
+        if (node.localName == 'a' && href.isNotEmpty) {
           if (href.endsWith('.pdf')) {
-            spans.add(
-              WidgetSpan(
-                child: Icon(Icons.picture_as_pdf, color: Colors.red, size: 16),
-                alignment: PlaceholderAlignment.middle,
-              ),
-            );
-            spans.add(
-              TextSpan(
-                text: text,
-                style: const TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                ),
-                recognizer:
-                    TapGestureRecognizer()
-                      ..onTap = () async {
-                        final url =
-                            href.startsWith('http')
-                                ? href
-                                : 'https://conts.it$href';
-                        downloadFile(url);
-                      },
-              ),
-            );
+            spans.add(buildPdfLink(text, href));
           } else if (href.endsWith('.doc') || href.endsWith('.docx')) {
-            spans.add(
-              WidgetSpan(
-                child: Icon(Icons.description, color: Colors.blue, size: 16),
-                alignment: PlaceholderAlignment.middle,
-              ),
-            );
-            spans.add(
-              TextSpan(
-                text: text,
-                style: const TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                ),
-                recognizer:
-                    TapGestureRecognizer()
-                      ..onTap = () async {
-                        final url =
-                            href.startsWith('http')
-                                ? href
-                                : 'https://conts.it$href';
-                        downloadFile(url);
-                      },
-              ),
-            );
+            spans.add(buildDocLink(text, href));
           } else {
             spans.add(
               TextSpan(
@@ -174,13 +108,12 @@ class DescrizionePageState extends State<DescrizionePage> {
                 ),
                 recognizer:
                     TapGestureRecognizer()
-                      ..onTap = () async {
-                        final url =
+                      ..onTap =
+                          () => _launchURL(
                             href.startsWith('http')
                                 ? href
-                                : 'https://conts.it$href';
-                        await _launchURL(url);
-                      },
+                                : 'https://conts.it$href',
+                          ),
               ),
             );
           }
