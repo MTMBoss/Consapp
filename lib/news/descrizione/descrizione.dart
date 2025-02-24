@@ -1,4 +1,3 @@
-// descrizione.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
@@ -22,6 +21,7 @@ class DescrizionePage extends StatefulWidget {
 class DescrizionePageState extends State<DescrizionePage> {
   String content = "Caricamento...";
   String imageUrl = '';
+  List<InlineSpan> documentLinks = [];
 
   @override
   void initState() {
@@ -38,6 +38,7 @@ class DescrizionePageState extends State<DescrizionePage> {
       final textBlocks = document.querySelectorAll(
         '.text-block p, .text-block ul li',
       );
+      final docElements = document.querySelectorAll('.doc-file a');
 
       String title = titleElement?.text.trim() ?? 'Nessun titolo';
       String description = textBlocks
@@ -55,8 +56,23 @@ class DescrizionePageState extends State<DescrizionePage> {
         }
       }
 
+      List<InlineSpan> docSpans = [];
+      for (var docElement in docElements) {
+        String docHref = docElement.attributes['href'] ?? '';
+        String docText =
+            docElement.querySelector('.doc-name')?.text.trim() ?? '';
+        if (docHref.isNotEmpty) {
+          if (docHref.endsWith('.pdf')) {
+            docSpans.add(buildPdfLink(docText, docHref));
+          } else if (docHref.endsWith('.doc') || docHref.endsWith('.docx')) {
+            docSpans.add(buildDocLink(docText, docHref));
+          }
+        }
+      }
+
       setState(() {
         content = "$title\n\n$description";
+        documentLinks = docSpans;
       });
     } else {
       setState(() {
@@ -78,7 +94,7 @@ class DescrizionePageState extends State<DescrizionePage> {
               RichText(
                 text: TextSpan(
                   style: const TextStyle(fontSize: 16, color: Colors.white),
-                  children: _buildTextSpans(content),
+                  children: _buildTextSpans(content) + documentLinks,
                 ),
               ),
               if (imageUrl.isNotEmpty) buildImage(imageUrl),
