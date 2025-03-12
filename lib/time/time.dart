@@ -5,13 +5,6 @@ class TimePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Time Page'),
-      ),
-      body: Center(
-        child: Text('Time Page Content'),
-      ),
-    );
+    return Scaffold(body: Center(child: Text('Time Page Content')));
   }
 }

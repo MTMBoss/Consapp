@@ -5,13 +5,6 @@ class PassPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Pass Page'),
-      ),
-      body: Center(
-        child: Text('Pass Page Content'),
-      ),
-    );
+    return Scaffold(body: Center(child: Text('Pass Page Content')));
   }
 }

@@ -25,6 +25,9 @@ class NewsPageState extends State<NewsPage> {
   }
 
   Future<void> fetchNews() async {
+    // Verifichiamo subito se il widget è montato
+    if (!mounted) return;
+
     setState(() {
       isLoading = true;
       errorMessage = '';
@@ -62,33 +65,37 @@ class NewsPageState extends State<NewsPage> {
           }
         }
 
-        if (mounted) {
-          setState(() {
-            newsList =
-                fetchedNews.where((news) {
-                  DateTime newsDate = DateTime.parse(
-                    FilterData.convertDateFormat(news['date']!),
-                  );
-                  return selectedDate == null ||
-                      newsDate.isAfter(selectedDate!) ||
-                      newsDate.isAtSameMomentAs(selectedDate!);
-                }).toList();
-          });
-        }
+        if (!mounted) return;
+        setState(() {
+          newsList =
+              fetchedNews.where((news) {
+                DateTime newsDate = DateTime.parse(
+                  FilterData.convertDateFormat(news['date']!),
+                );
+                return selectedDate == null ||
+                    newsDate.isAfter(selectedDate!) ||
+                    newsDate.isAtSameMomentAs(selectedDate!);
+              }).toList();
+        });
       } else {
+        if (!mounted) return;
         setState(() {
           errorMessage =
               'Errore durante il recupero dei dati: ${response.statusCode}';
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Si è verificato un errore: $e';
       });
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      // Invece di utilizzare 'return' qui, verifichiamo se il widget è montato e aggiornamo lo stato.
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -100,14 +107,14 @@ class NewsPageState extends State<NewsPage> {
       onDateChanged: (newDate) {
         setState(() {
           selectedDate = newDate;
-          fetchNews();
         });
+        fetchNews();
       },
       onYearChanged: (newYear) {
         setState(() {
           selectedDate = DateTime(newYear);
-          fetchNews();
         });
+        fetchNews();
       },
       onNewsTap: (newsItem) {
         Navigator.push(

@@ -5,13 +5,6 @@ class BigliettiPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Biglietti Page'),
-      ),
-      body: Center(
-        child: Text('Biglietti Page Content'),
-      ),
-    );
+    return Scaffold(body: Center(child: Text('Biglietti Page Content')));
   }
 }

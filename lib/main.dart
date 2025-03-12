@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'biglietti/biglietti.dart';
 import 'news/news.dart';
 import 'time/time.dart';
-import 'materie/materie.dart';
+import 'materie/materie_page.dart';
 import 'pass/pass.dart';
 import 'settings/settings.dart';
 
@@ -14,10 +14,11 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey, // Aggiunto per la navigazione globale
+      navigatorKey: navigatorKey, // Per la navigazione globale
       title: 'MyApp',
       theme: ThemeData.dark(),
       home: MainPage(),
@@ -27,12 +28,16 @@ class MyApp extends StatelessWidget {
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
+
   @override
   MainPageState createState() => MainPageState();
 }
 
 class MainPageState extends State<MainPage> {
   int _currentIndex = 0;
+  late PageController _pageController;
+
+  // Lista delle pagine
   final List<Widget> _pages = [
     PassPage(),
     NewsPage(),
@@ -41,22 +46,218 @@ class MainPageState extends State<MainPage> {
     BigliettiPage(),
   ];
 
+  // Lista dei titoli corrispondenti alle pagine
+  final List<String> _pageTitles = [
+    'Pass',
+    'News',
+    'Time',
+    'Materie',
+    'Biglietti',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  // Navigazione tramite il BottomNavigationBar.
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
+    _pageController.animateToPage(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
   }
 
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  // Drawer dinamico in base alla pagina corrente.
+  Widget _buildDrawer() {
+    switch (_currentIndex) {
+      case 0:
+        return Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(color: Colors.blue),
+                child: Text(
+                  "Opzioni Pass",
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: const Text("Informazioni Pass"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Logica per "Informazioni Pass"
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text("Impostazioni Pass"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Logica per "Impostazioni Pass"
+                },
+              ),
+            ],
+          ),
+        );
+
+      case 1:
+        return Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(color: Colors.blue),
+                child: Text(
+                  "Categorie News",
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.sports),
+                title: const Text("Sport"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Naviga alle notizie di sport
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.public),
+                title: const Text("Mondo"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Naviga alle notizie internazionali
+                },
+              ),
+            ],
+          ),
+        );
+
+      case 2:
+        return Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(color: Colors.blue),
+                child: Text(
+                  "Impostazioni Time",
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.access_alarm),
+                title: const Text("Alarm Settings"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Logica per le impostazioni dell'allarme
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.schedule),
+                title: const Text("Schedule Settings"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Logica per la programmazione
+                },
+              ),
+            ],
+          ),
+        );
+
+      case 3:
+        return Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(color: Colors.blue),
+                child: Text(
+                  "Opzioni Materie",
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.list),
+                title: const Text("Lista Materie"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Visualizza la lista delle materie
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text("Modifica Materie"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Logica per modificare le materie
+                },
+              ),
+            ],
+          ),
+        );
+
+      case 4:
+        return Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(color: Colors.blue),
+                child: Text(
+                  "Opzioni Biglietti",
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.confirmation_number),
+                title: const Text("Compra Biglietti"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Logica per comprare biglietti
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.history),
+                title: const Text("Storico Biglietti"),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Logica per lo storico dei biglietti
+                },
+              ),
+            ],
+          ),
+        );
+
+      default:
+        return const Drawer(
+          child: Center(child: Text("Nessun contenuto disponibile")),
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('MyApp'),
+        // Titolo dinamico in base alla pagina attiva
+        title: Text(_pageTitles[_currentIndex]),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings, color: Colors.blue),
+            icon: const Icon(Icons.settings, color: Colors.blue),
             onPressed: () {
               Navigator.push(
                 context,
@@ -66,11 +267,24 @@ class MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: _pages[_currentIndex],
+      // Il Drawer personalizzato di volta in volta.
+      drawer: _buildDrawer(),
+      // Impostiamo una larghezza ridotta per la gesture
+      // di apertura del Drawer, per non interferire con la navigazione di sistema.
+      drawerEdgeDragWidth: 40.0,
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.card_travel, color: Colors.blue),
             label: 'Pass',
