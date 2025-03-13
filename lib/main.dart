@@ -5,6 +5,7 @@ import 'time/time.dart';
 import 'materie/materie_page.dart';
 import 'pass/pass.dart';
 import 'settings/settings.dart';
+import 'materie/materie_drawer.dart';
 
 void main() {
   runApp(MyApp());
@@ -179,36 +180,7 @@ class MainPageState extends State<MainPage> {
         );
 
       case 3:
-        return Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
-                child: Text(
-                  "Opzioni Materie",
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.list),
-                title: const Text("Lista Materie"),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Visualizza la lista delle materie
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text("Modifica Materie"),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Logica per modificare le materie
-                },
-              ),
-            ],
-          ),
-        );
+        return const MaterieDrawer();
 
       case 4:
         return Drawer(
