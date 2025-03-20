@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logger/logger.dart'; // Importa il package logger
 
 class EsamiPage extends StatefulWidget {
   const EsamiPage({super.key});
@@ -15,8 +14,6 @@ class _EsamiPageState extends State<EsamiPage> {
   List<dynamic> _materieConVoto = [];
   bool _isLoading = true;
   String? _errorMessage;
-
-  final logger = Logger(); // Crea l'istanza del logger
 
   @override
   void initState() {
@@ -35,7 +32,6 @@ class _EsamiPageState extends State<EsamiPage> {
                   .toList();
           _isLoading = false;
         });
-        logger.d("Materie caricate dalla cache con voto: $_materieConVoto");
       }
 
       final fetchedMaterie = await fetchMaterie();
@@ -49,7 +45,6 @@ class _EsamiPageState extends State<EsamiPage> {
                   .toList();
           _isLoading = false;
         });
-        logger.d("Materie caricate dal server con voto: $_materieConVoto");
       }
     } catch (e) {
       if (mounted) {
@@ -58,7 +53,6 @@ class _EsamiPageState extends State<EsamiPage> {
           _isLoading = false;
         });
       }
-      logger.e("Errore durante il caricamento delle materie con voto: $e");
     }
   }
 
@@ -77,7 +71,6 @@ class _EsamiPageState extends State<EsamiPage> {
     final prefs = await SharedPreferences.getInstance();
     final materieJson = jsonEncode(materie);
     await prefs.setString('materie_cache', materieJson);
-    logger.d("Materie memorizzate nella cache.");
   }
 
   Future<List<dynamic>> _getCachedMaterie() async {
@@ -85,10 +78,8 @@ class _EsamiPageState extends State<EsamiPage> {
     final materieJson = prefs.getString('materie_cache');
 
     if (materieJson != null) {
-      logger.d("Materie recuperate dalla cache.");
       return jsonDecode(materieJson);
     } else {
-      logger.d("Nessuna materia trovata nella cache.");
       return [];
     }
   }
