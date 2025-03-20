@@ -83,28 +83,112 @@ class _EsamiPageState extends State<EsamiPage> {
                     return CreditsWidget(materieConVoto: _materieConVoto);
                   } else {
                     final m = _materieConVoto[index - 1];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 4,
-                      child: ListTile(
-                        title: Text(
-                          m['materia'] ?? 'Sconosciuta',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                    return GestureDetector(
+                      onTap: () {
+                        _showDetailBottomSheet(context, m);
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
                         ),
-                        subtitle: Text(
-                          'Anno: ${m['anno'] ?? '-'}   Voto: ${m['voto'] ?? '-'}   Crediti: ${m['crediti'] ?? '-'} data_esami: ${m['data_esami'] ?? '-'} Data esame: ${m['data_esame'] ?? '-'}',
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                m['materia'] ?? 'Sconosciuta',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Anno: ${m['anno'] ?? '-'} | Voto: ${m['voto'] ?? '-'} | Crediti: ${m['crediti'] ?? '-'}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              LinearProgressIndicator(
+                                value: 1.0,
+                                color: Colors.blueAccent,
+                                backgroundColor: Colors.grey[300],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   }
                 },
               ),
+    );
+  }
+
+  void _showDetailBottomSheet(BuildContext context, dynamic materia) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  height: 6,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                materia['materia'] ?? 'Sconosciuta',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Anno: ${materia['anno'] ?? '-'}',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Voto: ${materia['voto'] ?? '-'}',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Crediti: ${materia['crediti'] ?? '-'}',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Data Esame: ${materia['data_esame'] ?? '-'}',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 }

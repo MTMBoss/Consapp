@@ -99,3 +99,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+fonts:
+  - family: Orbitron
+    fonts:
+      - asset: assets/fonts/Orbitron-Regular.ttf
