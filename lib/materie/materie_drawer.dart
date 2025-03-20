@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'esami_page.dart';
+import 'esami/esami_page.dart';
 import 'materie_page.dart'; // Assicurati di importare il file giusto
 
 class MaterieDrawer extends StatelessWidget {

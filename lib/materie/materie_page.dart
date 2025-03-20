@@ -25,29 +25,37 @@ class _MateriePageState extends State<MateriePage> {
   }
 
   Future<void> _loadMaterie() async {
-    try {
-      final cachedMaterie = await _getCachedMaterie();
-      if (cachedMaterie.isNotEmpty && mounted) {
-        setState(() {
-          _materie = cachedMaterie;
-          _isLoading = false;
-        });
-      }
+    // Primo passaggio: carica i dati dalla cache (se disponibili)
+    final cachedMaterie = await _getCachedMaterie();
+    if (cachedMaterie.isNotEmpty && mounted) {
+      setState(() {
+        _materie = cachedMaterie;
+        _isLoading = false;
+      });
+    }
 
+    // Prova a recuperare i dati aggiornati dalla rete
+    try {
       final fetchedMaterie = await fetchMaterie();
       if (fetchedMaterie.isNotEmpty) {
         await _cacheMaterie(fetchedMaterie);
         if (mounted) {
           setState(() {
             _materie = fetchedMaterie;
-            _isLoading = false;
           });
         }
       }
     } catch (e) {
-      if (mounted) {
+      // Se la richiesta va in timeout o genera un errore, ed è già presente la cache,
+      // lasciamo i dati della cache senza mostrare un errore.
+      if (_materie.isEmpty && mounted) {
         setState(() {
           _errorMessage = 'Errore: ${e.toString()}';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
           _isLoading = false;
         });
       }
@@ -60,8 +68,7 @@ class _MateriePageState extends State<MateriePage> {
 
     if (response.statusCode == 200) {
       final decodedData = jsonDecode(response.body);
-
-      // Aggiungi un controllo per il campo 'anno'
+      // Mappa i dati e prevedi il parsing dell'anno
       return decodedData.map((materia) {
         return {
           'materia': materia['materia'] ?? '',
@@ -70,7 +77,7 @@ class _MateriePageState extends State<MateriePage> {
           'ore_fatte': materia['ore_fatte'] ?? 0,
           'professore': materia['professore'] ?? '',
           'voto': materia['voto'] ?? '',
-          'anno': _parseAnno(materia['anno']), // Parsing del campo 'anno'
+          'anno': _parseAnno(materia['anno']),
         };
       }).toList();
     } else {
@@ -97,7 +104,6 @@ class _MateriePageState extends State<MateriePage> {
   Future<List<dynamic>> _getCachedMaterie() async {
     final prefs = await SharedPreferences.getInstance();
     final materieJson = prefs.getString('materie_cache');
-
     if (materieJson != null) {
       return jsonDecode(materieJson);
     } else {
@@ -150,7 +156,7 @@ class _MateriePageState extends State<MateriePage> {
                   return ListTile(
                     title: Text(materia['materia']),
                     subtitle: Text(
-                      'Crediti: ${materia['crediti']} - Professore: ${materia['professore']} anno: ${materia['anno']} - voto: ${materia['voto']} - ore totali: ${materia['ore_totali']} - ore fatte: ${materia['ore_fatte']}',
+                      'Crediti: ${materia['crediti']} - Professore: ${materia['professore']} - Anno: ${materia['anno']} - Voto: ${materia['voto']} - Ore Totali: ${materia['ore_totali']} - Ore Fatte: ${materia['ore_fatte']}',
                     ),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
