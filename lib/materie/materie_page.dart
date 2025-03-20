@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logger/logger.dart'; // Importa il package logger
+import 'package:logger/logger.dart';
 
 class MateriePage extends StatefulWidget {
   const MateriePage({super.key});
@@ -38,14 +38,15 @@ class _MateriePageState extends State<MateriePage> {
       }
 
       final fetchedMaterie = await fetchMaterie();
-      await _cacheMaterie(fetchedMaterie);
-
-      if (mounted) {
-        setState(() {
-          _materie = fetchedMaterie;
-          _isLoading = false;
-        });
-        logger.d("Materie caricate dal server: $fetchedMaterie");
+      if (fetchedMaterie.isNotEmpty) {
+        await _cacheMaterie(fetchedMaterie);
+        if (mounted) {
+          setState(() {
+            _materie = fetchedMaterie;
+            _isLoading = false;
+          });
+          logger.d("Materie caricate dal server: $fetchedMaterie");
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -63,10 +64,34 @@ class _MateriePageState extends State<MateriePage> {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final decodedData = jsonDecode(response.body);
+      logger.d("Dati ricevuti dal server: $decodedData");
+
+      // Aggiungi un controllo per il campo 'anno'
+      return decodedData.map((materia) {
+        return {
+          'materia': materia['materia'] ?? '',
+          'crediti': materia['crediti'] ?? 0,
+          'ore_totali': materia['ore_totali'] ?? 0,
+          'ore_fatte': materia['ore_fatte'] ?? 0,
+          'professore': materia['professore'] ?? '',
+          'voto': materia['voto'] ?? '',
+          'anno': _parseAnno(materia['anno']), // Parsing del campo 'anno'
+        };
+      }).toList();
     } else {
       throw Exception('Errore: ${response.statusCode}');
     }
+  }
+
+  // Metodo per convertire il campo 'anno' in int o fornire un valore di default
+  int _parseAnno(dynamic anno) {
+    if (anno is int) {
+      return anno;
+    } else if (anno is String) {
+      return int.tryParse(anno) ?? 0;
+    }
+    return 0; // Valore di default se nullo o non valido
   }
 
   Future<void> _cacheMaterie(List<dynamic> materie) async {
@@ -93,32 +118,32 @@ class _MateriePageState extends State<MateriePage> {
   Widget build(BuildContext context) {
     // Filtra le materie in base all'anno selezionato
     final materieFiltrate =
-        _materie
-            .where((m) => int.tryParse(m['anno'] ?? '0') == _selectedAnno)
-            .toList();
+        _materie.where((m) {
+          final anno = m['anno'] ?? 0; // Valore di default se mancante
+          return anno == _selectedAnno;
+        }).toList();
 
-    // Log per monitorare il filtro
     logger.d("Materie filtrate per l'anno $_selectedAnno: $materieFiltrate");
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''), // Rimuovi il titolo "Materie"
+        title: const Text('Materie'),
         actions: [
           DropdownButton<int>(
             value: _selectedAnno,
-            items: [
-              DropdownMenuItem(value: 1, child: const Text('1° Anno')),
-              DropdownMenuItem(value: 2, child: const Text('2° Anno')),
-              DropdownMenuItem(value: 3, child: const Text('3° Anno')),
-            ],
-            onChanged: (newAnno) {
-              if (newAnno != null) {
+            items: List.generate(5, (index) {
+              return DropdownMenuItem(
+                value: index + 1,
+                child: Text('Anno ${index + 1}'),
+              );
+            }),
+            onChanged: (value) {
+              if (value != null) {
                 setState(() {
-                  _selectedAnno = newAnno;
+                  _selectedAnno = value;
                 });
               }
             },
-            underline: Container(), // Nasconde la linea sotto il dropdown
           ),
         ],
       ),
@@ -128,24 +153,25 @@ class _MateriePageState extends State<MateriePage> {
               : _errorMessage != null
               ? Center(child: Text(_errorMessage!))
               : materieFiltrate.isEmpty
-              ? const Center(
-                child: Text('Nessuna materia trovata per l\'anno selezionato.'),
-              )
+              ? const Center(child: Text('Nessuna materia disponibile'))
               : ListView.builder(
                 itemCount: materieFiltrate.length,
                 itemBuilder: (context, index) {
-                  final m = materieFiltrate[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                  final materia = materieFiltrate[index];
+                  return ListTile(
+                    title: Text(materia['materia']),
+                    subtitle: Text(
+                      'Crediti: ${materia['crediti']} - Professore: ${materia['professore']} anno: ${materia['anno']} - voto: ${materia['voto']} - ore totali: ${materia['ore_totali']} - ore fatte: ${materia['ore_fatte']}',
                     ),
-                    child: ListTile(
-                      title: Text(m['materia'] ?? 'Sconosciuta'),
-                      subtitle: Text(
-                        'Anno: ${m['anno'] ?? '-'}   Voto: ${m['voto'] ?? '-'}   Crediti: ${m['crediti'] ?? '-'}',
-                      ),
-                    ),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Selezionata materia: ${materia['materia']}',
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
