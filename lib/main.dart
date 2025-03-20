@@ -56,6 +56,13 @@ class MainPageState extends State<MainPage> {
     'Biglietti',
   ];
 
+  // Esempio di dati per le materie (questi possono essere caricati dinamicamente)
+  final List<dynamic> _materie = [
+    {'materia': 'Matematica', 'anno': 1, 'voto': '28', 'crediti': 6},
+    {'materia': 'Fisica', 'anno': 2, 'voto': '30', 'crediti': 8},
+    {'materia': 'Chimica', 'anno': 3, 'voto': '', 'crediti': 4, 'idoneo': true},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -75,7 +82,7 @@ class MainPageState extends State<MainPage> {
     });
     _pageController.animateToPage(
       index,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
     );
   }
@@ -180,7 +187,8 @@ class MainPageState extends State<MainPage> {
         );
 
       case 3:
-        return const MaterieDrawer();
+        // Passa la lista delle materie dal MainPage al MaterieDrawer
+        return MaterieDrawer(materie: _materie);
 
       case 4:
         return Drawer(
