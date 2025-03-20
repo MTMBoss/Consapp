@@ -46,8 +46,6 @@ class _MateriePageState extends State<MateriePage> {
         }
       }
     } catch (e) {
-      // Se la richiesta va in timeout o genera un errore, ed è già presente la cache,
-      // lasciamo i dati della cache senza mostrare un errore.
       if (_materie.isEmpty && mounted) {
         setState(() {
           _errorMessage = 'Errore: ${e.toString()}';
@@ -68,7 +66,6 @@ class _MateriePageState extends State<MateriePage> {
 
     if (response.statusCode == 200) {
       final decodedData = jsonDecode(response.body);
-      // Mappa i dati e prevedi il parsing dell'anno
       return decodedData.map((materia) {
         return {
           'materia': materia['materia'] ?? '',
@@ -85,14 +82,13 @@ class _MateriePageState extends State<MateriePage> {
     }
   }
 
-  // Metodo per convertire il campo 'anno' in int o fornire un valore di default
   int _parseAnno(dynamic anno) {
     if (anno is int) {
       return anno;
     } else if (anno is String) {
       return int.tryParse(anno) ?? 0;
     }
-    return 0; // Valore di default se nullo o non valido
+    return 0;
   }
 
   Future<void> _cacheMaterie(List<dynamic> materie) async {
@@ -116,7 +112,7 @@ class _MateriePageState extends State<MateriePage> {
     // Filtra le materie in base all'anno selezionato
     final materieFiltrate =
         _materie.where((m) {
-          final anno = m['anno'] ?? 0; // Valore di default se mancante
+          final anno = m['anno'] ?? 0;
           return anno == _selectedAnno;
         }).toList();
 

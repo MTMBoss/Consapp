@@ -98,7 +98,7 @@ class _EsamiPageState extends State<EsamiPage> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          'Anno: ${m['anno'] ?? '-'}   Voto: ${m['voto'] ?? '-'}   Crediti: ${m['crediti'] ?? '-'}',
+                          'Anno: ${m['anno'] ?? '-'}   Voto: ${m['voto'] ?? '-'}   Crediti: ${m['crediti'] ?? '-'} data_esami: ${m['data_esami'] ?? '-'} Data esame: ${m['data_esame'] ?? '-'}',
                         ),
                       ),
                     );
