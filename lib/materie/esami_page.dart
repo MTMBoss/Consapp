@@ -1,83 +1,122 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart'; // Importa il package logger
 
-// Classe Esame
-class Esame {
-  final String materia;
-  final int crediti;
-  final int? anno;
-  final String? voto;
-  final bool? idoneo;
+class EsamiPage extends StatefulWidget {
+  const EsamiPage({super.key});
 
-  Esame({
-    required this.materia,
-    required this.crediti,
-    this.anno,
-    this.voto,
-    this.idoneo,
-  });
-
-  // Metodo per convertire da JSON a Esame
-  factory Esame.fromMap(Map<String, dynamic> map) {
-    return Esame(
-      materia: map['materia'] ?? 'Sconosciuta',
-      crediti: int.tryParse(map['crediti'] ?? '0') ?? 0,
-      anno: int.tryParse(map['anno'] ?? '0'),
-      voto: map['voto'],
-      idoneo: map['idoneo'] == true,
-    );
-  }
-
-  // Metodo per convertire Esame in JSON
-  Map<String, dynamic> toMap() {
-    return {
-      'materia': materia,
-      'crediti': crediti.toString(),
-      'anno': anno?.toString() ?? '',
-      'voto': voto ?? '',
-      'idoneo': idoneo ?? false,
-    };
-  }
+  @override
+  State<EsamiPage> createState() => _EsamiPageState();
 }
 
-// Pagina EsamiPage
-class EsamiPage extends StatelessWidget {
-  final List<Esame> esami;
+class _EsamiPageState extends State<EsamiPage> {
+  List<dynamic> _materieConVoto = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  const EsamiPage({super.key, required this.esami});
+  final logger = Logger(); // Crea l'istanza del logger
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMaterieConVoto();
+  }
+
+  Future<void> _loadMaterieConVoto() async {
+    try {
+      final cachedMaterie = await _getCachedMaterie();
+      if (cachedMaterie.isNotEmpty && mounted) {
+        setState(() {
+          _materieConVoto =
+              cachedMaterie
+                  .where((m) => m['voto'] != null && m['voto'] != '')
+                  .toList();
+          _isLoading = false;
+        });
+        logger.d("Materie caricate dalla cache con voto: $_materieConVoto");
+      }
+
+      final fetchedMaterie = await fetchMaterie();
+      await _cacheMaterie(fetchedMaterie);
+
+      if (mounted) {
+        setState(() {
+          _materieConVoto =
+              fetchedMaterie
+                  .where((m) => m['voto'] != null && m['voto'] != '')
+                  .toList();
+          _isLoading = false;
+        });
+        logger.d("Materie caricate dal server con voto: $_materieConVoto");
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Errore: ${e.toString()}';
+          _isLoading = false;
+        });
+      }
+      logger.e("Errore durante il caricamento delle materie con voto: $e");
+    }
+  }
+
+  Future<List<dynamic>> fetchMaterie() async {
+    final url = Uri.parse('http://192.168.1.21:8080/scrape');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Errore: ${response.statusCode}');
+    }
+  }
+
+  Future<void> _cacheMaterie(List<dynamic> materie) async {
+    final prefs = await SharedPreferences.getInstance();
+    final materieJson = jsonEncode(materie);
+    await prefs.setString('materie_cache', materieJson);
+    logger.d("Materie memorizzate nella cache.");
+  }
+
+  Future<List<dynamic>> _getCachedMaterie() async {
+    final prefs = await SharedPreferences.getInstance();
+    final materieJson = prefs.getString('materie_cache');
+
+    if (materieJson != null) {
+      logger.d("Materie recuperate dalla cache.");
+      return jsonDecode(materieJson);
+    } else {
+      logger.d("Nessuna materia trovata nella cache.");
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Filtra gli esami con voto o idoneità
-    final esamiConVotoOIdoneo =
-        esami
-            .where(
-              (esame) =>
-                  esame.voto != null && esame.voto!.isNotEmpty ||
-                  (esame.idoneo ?? false),
-            )
-            .toList();
-
     return Scaffold(
-      appBar: AppBar(title: const Text("Esami Materie")),
+      appBar: AppBar(title: const Text('Esami con Voto')),
       body:
-          esamiConVotoOIdoneo.isEmpty
-              ? const Center(
-                child: Text("Non ci sono esami con voto o idoneità."),
-              )
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage != null
+              ? Center(child: Text(_errorMessage!))
+              : _materieConVoto.isEmpty
+              ? const Center(child: Text('Nessuna materia con voto trovata.'))
               : ListView.builder(
-                itemCount: esamiConVotoOIdoneo.length,
+                itemCount: _materieConVoto.length,
                 itemBuilder: (context, index) {
-                  final esame = esamiConVotoOIdoneo[index];
+                  final m = _materieConVoto[index];
                   return Card(
                     margin: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 5,
                     ),
                     child: ListTile(
-                      title: Text(esame.materia),
+                      title: Text(m['materia'] ?? 'Sconosciuta'),
                       subtitle: Text(
-                        'Anno: ${esame.anno ?? "-"}   Crediti: ${esame.crediti}   '
-                        'Voto: ${esame.voto ?? "Idoneo"}',
+                        'Anno: ${m['anno'] ?? '-'}   Voto: ${m['voto'] ?? '-'}   Crediti: ${m['crediti'] ?? '-'}',
                       ),
                     ),
                   );

@@ -8,7 +8,7 @@ import 'settings/settings.dart';
 import 'materie/materie_drawer.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey, // Per la navigazione globale
       title: 'MyApp',
       theme: ThemeData.dark(),
-      home: MainPage(),
+      home: const MainPage(),
     );
   }
 }
@@ -40,11 +40,11 @@ class MainPageState extends State<MainPage> {
 
   // Lista delle pagine
   final List<Widget> _pages = [
-    PassPage(),
-    NewsPage(),
-    TimePage(),
-    MateriePage(),
-    BigliettiPage(),
+    const PassPage(),
+    const NewsPage(),
+    const TimePage(),
+    const MateriePage(),
+    const BigliettiPage(),
   ];
 
   // Lista dei titoli corrispondenti alle pagine
@@ -54,13 +54,6 @@ class MainPageState extends State<MainPage> {
     'Time',
     'Materie',
     'Biglietti',
-  ];
-
-  // Esempio di dati per le materie (questi possono essere caricati dinamicamente)
-  final List<dynamic> _materie = [
-    {'materia': 'Matematica', 'anno': 1, 'voto': '28', 'crediti': 6},
-    {'materia': 'Fisica', 'anno': 2, 'voto': '30', 'crediti': 8},
-    {'materia': 'Chimica', 'anno': 3, 'voto': '', 'crediti': 4, 'idoneo': true},
   ];
 
   @override
@@ -122,73 +115,8 @@ class MainPageState extends State<MainPage> {
           ),
         );
 
-      case 1:
-        return Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
-                child: Text(
-                  "Categorie News",
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.sports),
-                title: const Text("Sport"),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Naviga alle notizie di sport
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.public),
-                title: const Text("Mondo"),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Naviga alle notizie internazionali
-                },
-              ),
-            ],
-          ),
-        );
-
-      case 2:
-        return Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
-                child: Text(
-                  "Impostazioni Time",
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.access_alarm),
-                title: const Text("Alarm Settings"),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Logica per le impostazioni dell'allarme
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.schedule),
-                title: const Text("Schedule Settings"),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Logica per la programmazione
-                },
-              ),
-            ],
-          ),
-        );
-
       case 3:
-        // Passa la lista delle materie dal MainPage al MaterieDrawer
-        return MaterieDrawer(materie: _materie);
+        return MaterieDrawer(); // Non serve più passare la lista, sarà gestita dalla MateriePage
 
       case 4:
         return Drawer(
@@ -233,7 +161,6 @@ class MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Titolo dinamico in base alla pagina attiva
         title: Text(_pageTitles[_currentIndex]),
         actions: [
           IconButton(
@@ -241,16 +168,13 @@ class MainPageState extends State<MainPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
             },
           ),
         ],
       ),
-      // Il Drawer personalizzato di volta in volta.
-      drawer: _buildDrawer(),
-      // Impostiamo una larghezza ridotta per la gesture
-      // di apertura del Drawer, per non interferire con la navigazione di sistema.
+      drawer: _buildDrawer(), // Usa la funzione per il drawer dinamico
       drawerEdgeDragWidth: 40.0,
       body: PageView(
         controller: _pageController,

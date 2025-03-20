@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'materie_page.dart';
 import 'esami_page.dart';
+import 'materie_page.dart'; // Assicurati di importare il file giusto
 
 class MaterieDrawer extends StatelessWidget {
-  final List<dynamic> materie; // Lista di materie da passare
-
-  const MaterieDrawer({super.key, required this.materie});
+  const MaterieDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +23,7 @@ class MaterieDrawer extends StatelessWidget {
             title: const Text("Lista Materie"),
             onTap: () {
               Navigator.pop(context);
+              // Naviga verso la pagina delle materie
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const MateriePage()),
@@ -32,25 +31,17 @@ class MaterieDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text("Esami Materie"),
+            leading: const Icon(Icons.list),
+            title: const Text("Esami delle Materie"),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pop(context); // Chiudi il drawer
+              // Naviga verso la pagina degli esami
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder:
-                      (context) => EsamiPage(
-                        esami:
-                            materie
-                                .map((m) => Esame.fromMap(m))
-                                .where(
-                                  (esame) =>
-                                      esame.voto != null ||
-                                      (esame.idoneo ?? false),
-                                )
-                                .toList(), // Filtra solo le materie con voto o idoneità
-                      ),
+                      (context) =>
+                          const EsamiPage(), // Naviga senza passare parametri
                 ),
               );
             },

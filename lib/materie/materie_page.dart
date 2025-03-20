@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'materie_drawer.dart';
+import 'package:logger/logger.dart'; // Importa il package logger
 
 class MateriePage extends StatefulWidget {
   const MateriePage({super.key});
@@ -18,6 +18,7 @@ class _MateriePageState extends State<MateriePage> {
 
   // Variabile per tracciare l'anno selezionato
   int _selectedAnno = 1;
+  final logger = Logger(); // Crea l'istanza del logger
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _MateriePageState extends State<MateriePage> {
           _materie = cachedMaterie;
           _isLoading = false;
         });
+        logger.d("Materie caricate dalla cache: $cachedMaterie");
       }
 
       final fetchedMaterie = await fetchMaterie();
@@ -43,6 +45,7 @@ class _MateriePageState extends State<MateriePage> {
           _materie = fetchedMaterie;
           _isLoading = false;
         });
+        logger.d("Materie caricate dal server: $fetchedMaterie");
       }
     } catch (e) {
       if (mounted) {
@@ -51,6 +54,7 @@ class _MateriePageState extends State<MateriePage> {
           _isLoading = false;
         });
       }
+      logger.e("Errore durante il caricamento delle materie: $e");
     }
   }
 
@@ -69,6 +73,7 @@ class _MateriePageState extends State<MateriePage> {
     final prefs = await SharedPreferences.getInstance();
     final materieJson = jsonEncode(materie);
     await prefs.setString('materie_cache', materieJson);
+    logger.d("Materie memorizzate nella cache.");
   }
 
   Future<List<dynamic>> _getCachedMaterie() async {
@@ -76,8 +81,10 @@ class _MateriePageState extends State<MateriePage> {
     final materieJson = prefs.getString('materie_cache');
 
     if (materieJson != null) {
+      logger.d("Materie recuperate dalla cache.");
       return jsonDecode(materieJson);
     } else {
+      logger.d("Nessuna materia trovata nella cache.");
       return [];
     }
   }
@@ -90,9 +97,12 @@ class _MateriePageState extends State<MateriePage> {
             .where((m) => int.tryParse(m['anno'] ?? '0') == _selectedAnno)
             .toList();
 
+    // Log per monitorare il filtro
+    logger.d("Materie filtrate per l'anno $_selectedAnno: $materieFiltrate");
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Materie"),
+        title: const Text(''), // Rimuovi il titolo "Materie"
         actions: [
           DropdownButton<int>(
             value: _selectedAnno,
@@ -112,9 +122,6 @@ class _MateriePageState extends State<MateriePage> {
           ),
         ],
       ),
-      drawer: MaterieDrawer(
-        materie: _materie,
-      ), // Passa la lista delle materie al drawer
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
