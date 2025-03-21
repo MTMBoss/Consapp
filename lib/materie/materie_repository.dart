@@ -7,7 +7,7 @@ import 'materia_model.dart';
 
 class MaterieRepository {
   Future<List<Materia>> fetchMaterie() async {
-    final url = Uri.parse('http://192.168.1.21:8080/scrape');
+    final url = Uri.parse('http://90.147.104.44:8080/scrape');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

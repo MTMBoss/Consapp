@@ -110,7 +110,7 @@ class _EsamiPageState extends State<EsamiPage> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Anno: ${m['anno'] ?? '-'} | Voto: ${m['voto'] ?? '-'} | Crediti: ${m['crediti'] ?? '-'}',
+                                'Anno: ${m['anno'] ?? '-'} | Voto: ${m['voto'] ?? '-'} | Crediti: ${m['crediti'] ?? '-'} Sessione: ${m['sessione'] ?? '-'}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -182,6 +182,11 @@ class _EsamiPageState extends State<EsamiPage> {
               const SizedBox(height: 8),
               Text(
                 'Data Esame: ${materia['data_esame'] ?? '-'}',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Sessione: ${materia['sessione'] ?? '-'}',
                 style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 16),
